@@ -11,14 +11,7 @@ const App = () => {
   const [contacts, setContacts] = useState(() => {
     const localStorageContacts = localStorage.getItem('contacts');
     return JSON.parse(localStorageContacts) || [];
-  }); // by passing ⨐ to `useState` we can lazily initialize the state with the parsed data from localStorage. This eliminates the need for the `useEffect` with the empty dependencies array
-  /* useEffect(() => {
-    const localStorageContacts = localStorage.getItem('contacts');
-    const parsedContacts = localStorageContacts
-      ? JSON.parse(localStorageContacts)
-      : [];
-    setContacts(parsedContacts);
-  }, []); */
+  });
 
   useEffect(() => {
     localStorage.setItem('contacts', JSON.stringify(contacts));
