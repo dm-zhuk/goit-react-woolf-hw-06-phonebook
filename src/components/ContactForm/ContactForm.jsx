@@ -1,46 +1,68 @@
 import React, { useState } from 'react';
+import { nanoid } from '@reduxjs/toolkit';
+import { useDispatch, useSelector } from 'react-redux';
+import { addContact } from '../../redux/contacts/contactSlice';
+import { getContacts } from '../../redux/contacts/selectors';
 import { Form, Label, Input, SubmitButton } from './index';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-const ContactForm = ({ onAddContact }) => {
-  const [contact, setContact] = useState({ name: '', number: '' });
+const ContactForm = () => {
+  const dispatch = useDispatch();
+  const contacts = useSelector(getContacts);
+  const [name, setName] = useState('');
+  const [number, setNumber] = useState('');
 
-  //  ⨐ uses the contact state to pass the name and number values to the onAddContact ⨐
   const handleSubmit = evt => {
     evt.preventDefault();
-    onAddContact(contact.name, contact.number);
-    setContact({ name: '', number: '' });
+
+    const isNameExist = contacts.some(
+      contact =>
+        contact.name.toLowerCase() === name.toLowerCase() ||
+        contact.number === number
+    );
+
+    if (isNameExist) {
+      toast.warning(`${name} or tel. ${number} is already in contacts list!`);
+    } else {
+      dispatch(addContact({ id: nanoid(), name, number }));
+      setName('');
+      setNumber('');
+    }
   };
 
-  //  to update the respective property when the input values change
   const handleChange = evt => {
     const { name, value } = evt.target;
-    setContact(prevContact => ({ ...prevContact, [name]: value }));
+    if (name === 'name') {
+      setName(value);
+    } else if (name === 'number') {
+      setNumber(value);
+    }
   };
 
   return (
-    <Form onSubmit={handleSubmit}>
-      <Label>Name:</Label>
-      <Input
-        type="text"
-        name="name"
-        pattern="^[a-zєіїA-Zа-яА-ЯІ]+(([' \-][a-zA-Zа-яєіїА-ЯІ ])?[a-zA-Zа-яєіїА-ЯІ]*)*$"
-        title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
-        value={contact.name}
-        onChange={handleChange} //  now consolidating the state into a single object and using the same `handleChange`⨐ for both inputs
-        required
-      />
-      <Label>Number:</Label>
-      <Input
-        type="tel"
-        name="number"
-        pattern="\+?\d{1,4}?[ .\-\s]?\(?\d{1,3}?\)?[ .\-\s]?\d{1,4}[ .\-\s]?\d{1,4}[ .\-\s]?\d{1,9}"
-        title="Phone number must be digits and can contain spaces, dashes, parentheses, and can start with +"
-        value={contact.number}
-        onChange={handleChange}
-        required
-      />
-      <SubmitButton type="submit">Add Contact</SubmitButton>
-    </Form>
+    <>
+      <ToastContainer />
+      <Form onSubmit={handleSubmit}>
+        <Label>Name:</Label>
+        <Input
+          type="text"
+          name="name"
+          value={name}
+          onChange={handleChange}
+          required
+        />
+        <Label>Number:</Label>
+        <Input
+          type="tel"
+          name="number"
+          value={number}
+          onChange={handleChange}
+          required
+        />
+        <SubmitButton type="submit">Add Contact</SubmitButton>
+      </Form>
+    </>
   );
 };
 

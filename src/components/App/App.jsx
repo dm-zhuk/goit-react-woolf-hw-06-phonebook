@@ -1,63 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { nanoid } from 'nanoid';
-import 'react-toastify/dist/ReactToastify.css';
-import { ToastContainer, toast } from 'react-toastify';
+import React from 'react';
 import { Container, Title, SubTitle } from './index';
 import ContactForm from 'components/ContactForm/ContactForm';
 import ContactList from 'components/ContactList/ContactList';
 import Filter from 'components/Filter/Filter';
 
 const App = () => {
-  const [contacts, setContacts] = useState(() => {
-    const localStorageContacts = localStorage.getItem('contacts');
-    return JSON.parse(localStorageContacts) || [];
-  });
-
-  useEffect(() => {
-    localStorage.setItem('contacts', JSON.stringify(contacts));
-  }, [contacts]);
-
-  const [filter, setFilter] = useState('');
-
-  const handleAddContact = (name, number) => {
-    const isExist = contacts.some(
-      contact =>
-        contact.name.toLowerCase() === name.toLowerCase() ||
-        contact.number === number
-    );
-    if (isExist) {
-      toast.warning(`${name} or tel. ${number} is already in contacts list!`);
-      return;
-    }
-    const newContact = { id: nanoid(), name, number };
-    setContacts(prevContacts => [...prevContacts, newContact]);
-  };
-
-  const handleDeleteContact = id => {
-    setContacts(prevContacts =>
-      prevContacts.filter(contact => contact.id !== id)
-    );
-  };
-
-  const handleFilterChange = evt => {
-    setFilter(evt.target.value);
-  };
-
-  const filteredContacts = contacts.filter(contact =>
-    contact.name.toLowerCase().includes(filter)
-  );
-
   return (
     <Container>
-      <ToastContainer />
       <Title>✆ Phonebook ✆</Title>
-      <ContactForm onAddContact={handleAddContact} />
+      <ContactForm />
       <SubTitle>Contacts</SubTitle>
-      <Filter value={filter} onChange={handleFilterChange} />
-      <ContactList
-        contacts={filteredContacts}
-        onDeleteContact={handleDeleteContact}
-      />
+      <Filter />
+      <ContactList />
     </Container>
   );
 };
